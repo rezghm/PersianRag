@@ -1,4 +1,6 @@
+# ignore __pychache__ directory
 __pychache__/
+.pyc
 test*.py
 .env
 .log
