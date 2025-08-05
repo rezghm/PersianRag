@@ -28,11 +28,6 @@ def timer(func):
         return result
     return wrapper
 
-@lru_cache(maxsize=1024)
-def process_farsi_text_cached(text: str) -> str:
-    reshaped = arabic_reshaper.reshape(text)
-    return get_display(reshaped)
-
 
 class Retriever:
     @timer
@@ -47,6 +42,7 @@ class Retriever:
         self.retrieved_docs = None
         self.is_persian = True
         self.embedding_model=embedding_model
+        self.final_docs = ""
 
     @timer
     def hazmer(self, raw_texts):
@@ -109,9 +105,7 @@ class Retriever:
         return self.retrieved_docs
 
     @timer
-    def display(self, retrieved_docs: Iterable[Document]) -> None:
+    def extract_docs(self, retrieved_docs: Iterable[Document]) -> str:
         for doc in retrieved_docs:
-            content = (
-                process_farsi_text_cached(doc.page_content) if self.is_persian else doc.page_content
-            )
-            print(content, '\n', '*'*150)
+            self.final_docs += doc.page_content + "\n\n"
+        return self.final_docs

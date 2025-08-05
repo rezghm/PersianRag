@@ -1,4 +1,7 @@
-from retriever import *
+from retrieve import *
+from generate import *
+from dotenv import load_dotenv
+load_dotenv()
 
 
 raw_texts = [
@@ -21,31 +24,29 @@ raw_texts = [
 """به گزارش گروه استان‌ها خبرگزاری دانشجو، طبق اعلام استانداری‌های برخی استان‌های سراسر کشور فردا (چهارشنبه ۱۵ مرداد) فعالیت ادارات، مدارس و دانشگاه‌ها تعطیل است و در برخی استان‌ها نیز فعالیت ادارات به صورت دورکاری صورت می‌گیرد.  لیست زیر به صورت تجمیعی از استان‌هایی تهیه شده است که فردا چهارشنبه ۱۵ مرداد تعطیل هستند:  تهران  اصفهان  قزوین  خراسان رضوی  خراسان جنوبی  گیلان  هرمزگان  کهگیلویه و بویراحمد  چهارمحال و بختیاری  فارس (فعالیت به صورت دورکاری)  ایلام (فعالیت به صورت دورکاری)  قم  آذربایجان شرقی  یزد  گلستان  خوزستان (فعالیت به صورت دورکاری)  سمنان  کرمان  خراسان جنوبی  بوشهر  البرز  کرمانشاه  کردستان  مرکزی""",
 ]
 
-query = "تن آشفتگیها، زندگی پیچیدگی کمتری"
-query = " یا حمایت افراطی کاملا ناسازگار"
-query = "معنای کمال نیست، اما میتواند"
-query = " a framework for developing"
-query = "نگاه مدیرعامل گوگل دیپ‌مایند از دیدگاه هاسابیس، آینده پس از دستیابی به ه"
-query = " هوش جامع مصنوع"
-query = " تنها روی کاغذ و در کنفرانس‌های خبری"
-query = "دریا ماهی کوسه"
-query = "هوشی مصنوعی، گوگل"
-query = "کیا تعطیلن فردا؟"
 
 logging.basicConfig(level=logging.DEBUG)
 
-@timer
-def rerun():
-    ret = Retriever(new_vdb=False)
-    rets = ret.load_vdb(query=query, k=2)
-    ret.display(retrieved_docs=rets)
-# rerun()
 
 @timer
-def run():
-    ret = Retriever(new_vdb=True)
-    ret.create_vdb(raw_texts = raw_texts, chunk_size=64, chunk_overlap=4)
-    ret = Retriever(new_vdb=False)
-    rets = ret.load_vdb(query=query, k=2)
-    ret.display(retrieved_docs=rets)
-run()
+def run(query):
+    retriever = Retriever(new_vdb=True)
+    retriever.create_vdb(raw_texts = raw_texts, chunk_size=64, chunk_overlap=4)
+    rets = retriever.load_vdb(query=query, k=2)
+    docs = retriever.extract_docs(retrieved_docs=rets)
+    return docs
+
+
+API_KEY=os.getenv('API_KEY')
+BASE_URL = os.getenv('BASE_URL')
+MODEL_NAME = os.getenv('MODEL_NAME')
+
+
+if __name__ == "__main__":
+    user_query = input('Enter your question:')
+    pre_prompt = "You are a RAG system, some question will be asked by the user, you need to answer based on only the retreived docs\
+    and only the question asked and not any irrelevant retrieved docs"
+    print(call_llm(model_name=MODEL_NAME,
+                   api_key=API_KEY,
+                   base_url=BASE_URL,
+                   prompt = pre_prompt + '\n' + f'here is the user question: {user_query}' + '\n' + 'here is the retrieved docs:' + run(user_query)))
