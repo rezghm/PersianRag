@@ -13,6 +13,7 @@ import time
 from langchain_community.vectorstores import FAISS
 from functools import wraps
 import logging
+from hazm import Normalizer
 
 
 def timer(func):
@@ -48,6 +49,12 @@ class Retriever:
         self.embedding_model=embedding_model
 
     @timer
+    def hazmer(self, raw_texts):
+        normalizer = Normalizer()
+        normalized_raw_texts = [normalizer.normalize(text) for text in raw_texts]
+        return normalized_raw_texts
+    
+    @timer
     def create_vdb(self,
         raw_texts: Iterable[str],
         chunk_size: int,
@@ -55,7 +62,7 @@ class Retriever:
         vdb_dir: str = "faiss_vdb",) -> None:
         if not raw_texts:
             raise ValueError("raw_texts must be a non-empty iterable of strings")
-        # If not creating a new VDB and one already exists, skip rebuilding
+
         if not self.new_vdb:
             try:
                 self.vdb = FAISS.load_local(
@@ -72,10 +79,11 @@ class Retriever:
 
         splitter = CharacterTextSplitter(chunk_size=chunk_size, chunk_overlap=chunk_overlap)
         docs: List[Document] = []
-        for text in raw_texts:
+
+        normalized_raw_texts = self.hazmer(raw_texts)
+        for text in normalized_raw_texts:
             docs.extend(Document(page_content=chunk) for chunk in splitter.split_text(text))
 
-        # Build (and auto-persist) vector DB
         self.vdb = FAISS.from_documents(
             documents=docs,
             embedding=self.embedding_model
