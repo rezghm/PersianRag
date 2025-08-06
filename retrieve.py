@@ -1,38 +1,19 @@
-# retriever2 usees FAISS instead of Chroma
-#
-#  
 from typing import Iterable, List, Optional
-from functools import wraps, lru_cache
-from langchain_chroma import Chroma
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain.text_splitter import CharacterTextSplitter
 from langchain.schema import Document
-from bidi.algorithm import get_display
-import arabic_reshaper
-import time
+from utils.decorators import timer
 from langchain_community.vectorstores import FAISS
-from functools import wraps
 import logging
 from hazm import Normalizer
-
-
-def timer(func):
-    @wraps(func)
-    def wrapper(*args, **kwargs):
-        start = time.time()
-        result = func(*args, **kwargs)
-        duration = time.time() - start
-        logging.getLogger(__name__).debug(
-            "%s executed in %.4f seconds", func.__name__, duration
-        )
-        return result
-    return wrapper
+from warnings import filterwarnings
+filterwarnings('ignore')
 
 
 class Retriever:
-    @timer
     def __init__(self, 
                  new_vdb=True, 
+                #  embedding_model=HuggingFaceEmbeddings(model_name="intfloat/multilingual-e5-small",
                  embedding_model=HuggingFaceEmbeddings(model_name="sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2",
                                                        model_kwargs={"local_files_only": True}
 )
@@ -109,3 +90,4 @@ class Retriever:
         for doc in retrieved_docs:
             self.final_docs += doc.page_content + "\n\n"
         return self.final_docs
+    

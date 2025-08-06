@@ -6,3 +6,8 @@ test*.py
 .log
 .logs
 logs/
+pdfs/
+*.txt
+*.pdf
+*.ttf
+node_module/
