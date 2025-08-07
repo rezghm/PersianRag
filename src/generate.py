@@ -22,7 +22,7 @@ class LLM:
 
     def _log(self, prompt, output):
         datetime_now = datetime.now().strftime("%Y%m%d")
-        log_file = f"logs/llm_calls{datetime_now}.log"
+        log_file = f"../logs/llm_calls{datetime_now}.log"
         log_dict = {
         "timestamp": datetime.now().strftime("%H%M%S"),
         "model": self.model_name,
@@ -31,7 +31,7 @@ class LLM:
         }   
         with open(log_file, "a", encoding="utf-8") as f:
             f.write(json.dumps(log_dict, ensure_ascii=False) + "\n")
-        pdf_file = PDF(f'pdfs/{datetime_now}_{datetime.now().strftime("%H%M%S")}.pdf')
+        pdf_file = PDF(f'../pdfs/{datetime_now}_{datetime.now().strftime("%H%M%S")}.pdf')
         pdf_file.save_persian_pdf(self.model_name, prompt, output)
 
     def _llm_init(self):
