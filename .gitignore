@@ -11,3 +11,9 @@ pdfs/
 *.pdf
 *.ttf
 node_module/
+docs/
+*.pkl
+faiss_index
+vdb_cache/
+*.index
+old*

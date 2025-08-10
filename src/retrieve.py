@@ -15,8 +15,7 @@ class Retriever:
                  new_vdb=True, 
                 #  embedding_model=HuggingFaceEmbeddings(model_name="intfloat/multilingual-e5-small",
                  embedding_model=HuggingFaceEmbeddings(model_name="sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2",
-                                                       model_kwargs={"local_files_only": True}
-)
+                                                       model_kwargs={"local_files_only": True})
                 ) -> None:
         self.new_vdb = new_vdb
         self.vdb = None
@@ -68,6 +67,12 @@ class Retriever:
         self.vdb.save_local(vdb_dir)
         logging.getLogger(__name__).debug("Built new vector DB at %s", vdb_dir)
 
+    def pdf_to_text(pdf_file):
+        reader = PdfReader(pdf_file)
+        text = ""
+        for page in reader.pages:
+            text += page.extract_text() or ""
+        return text
 
     @timer
     def load_vdb(self, query: str, vdb_dir: str = "faiss_vdb", k: int = 3) -> List[Document]:
