@@ -4,4 +4,5 @@ This is a project working on implementing a Rag system specifically for Persian 
 # Install Packages
 uv pip install -r requirements.txt
 
-# streamlit run app.py
+# Run
+streamlit run app.py
