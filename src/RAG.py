@@ -1,4 +1,3 @@
-from utils.decorators import timer
 import os
 import json
 from openai import OpenAI
@@ -28,6 +27,8 @@ class LLM:
 
     def _log(self, prompt, output):
         datetime_now = datetime.now().strftime("%Y%m%d")
+        log_path = '../logs'
+        os.makedirs(log_path, exist_ok=True) 
         log_file = f"../logs/llm_calls{datetime_now}.log"
         log_dict = {
         "timestamp": datetime.now().strftime("%H%M%S"),
@@ -37,6 +38,8 @@ class LLM:
         }   
         with open(log_file, "a", encoding="utf-8") as f:
             f.write(json.dumps(log_dict, ensure_ascii=False) + "\n")
+        pdf_path = '../pdfs'
+        os.makedirs(pdf_path, exist_ok=True) 
         pdf_file = PDF(f'../pdfs/{datetime_now}_{datetime.now().strftime("%H%M%S")}.pdf')
         pdf_file.save_persian_pdf(self.model_name, prompt, output)
 
@@ -60,6 +63,7 @@ class LLM:
         self._log(prompt, output)
         print(output)
         return output
+
 
 
 class PDF:

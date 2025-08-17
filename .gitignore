@@ -7,7 +7,7 @@ test*.py
 .logs
 logs/
 pdfs/
-*.txt
+Questions.txt
 *.pdf
 *.ttf
 node_module/
